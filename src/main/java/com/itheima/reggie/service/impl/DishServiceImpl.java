@@ -14,6 +14,7 @@ import com.itheima.reggie.service.DishFlavorService;
 import com.itheima.reggie.service.DishService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,10 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     @Autowired
     CategoryService categoryService;
+
+
+    @Autowired
+    DishMapper dishMapper;
 
     /**
      * 保存包含口味的菜品
@@ -176,6 +181,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     /**
      * 修改菜品，包含菜品口味
+     *
      * @param dishDto 包含口味的菜品
      * @return
      */
@@ -184,27 +190,43 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     public boolean updateByIdWithFlavors(DishDto dishDto) {
 
         // 修改菜品基本信息
-    boolean updateRsult = this.updateById(dishDto);
+        boolean updateRsult = this.updateById(dishDto);
 
-    if (!updateRsult) {
-        return updateRsult;
-    }
+        if (!updateRsult) {
+            return updateRsult;
+        }
 
         // 删除对应菜品的口味信息，条件是菜品id，而非口味id
         LambdaQueryWrapper<DishFlavor> qw = new LambdaQueryWrapper<>();
         Long dishId = dishDto.getId();
         qw.eq(DishFlavor::getDishId, dishId);
         boolean deleteResult = dishFlavorService.remove(qw);
-    // 删除失败？也没事，不用额外处理！接下来直接添加即可。
+        // 删除失败？也没事，不用额外处理！接下来直接添加即可。
 
-    // 把dishId设置进DishFlavor对象
-    List<DishFlavor> flavors = dishDto.getFlavors();
-    for (DishFlavor flavor : flavors) {
-        flavor.setDishId(dishId);
+        // 把dishId设置进DishFlavor对象
+        List<DishFlavor> flavors = dishDto.getFlavors();
+        for (DishFlavor flavor : flavors) {
+            flavor.setDishId(dishId);
+        }
+
+        // 添加口味信息
+        boolean saveBatchResult = dishFlavorService.saveBatch(flavors);
+        return saveBatchResult;
     }
 
-    // 添加口味信息
-    boolean saveBatchResult = dishFlavorService.saveBatch(flavors);
-    return saveBatchResult;
+    /**
+     * 启售/禁售
+     *
+     * @param status 目标状态，值为0或1
+     * @param ids    要被修改的菜品id们
+     * @return
+     */
+    @Override
+    public boolean switchStatus(Integer status, Long[] ids) {
+
+        // 禁用
+        boolean result = dishMapper.updateStatusByIds(status, ids);
+
+        return result;
     }
 }
