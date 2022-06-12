@@ -8,5 +8,5 @@ import java.sql.SQLIntegrityConstraintViolationException;
 
 public interface DishService extends IService<Dish> {
     // 保存包含口味的菜品
-    boolean saveWithFlavors(DishDto dishDto) ;
+    boolean saveWithFlavors(DishDto dishDto) throws SQLIntegrityConstraintViolationException;
 }
