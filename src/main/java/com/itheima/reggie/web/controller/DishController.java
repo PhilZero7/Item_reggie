@@ -1,5 +1,6 @@
 package com.itheima.reggie.web.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.service.DishService;
 import com.itheima.reggie.web.R;
@@ -21,6 +22,7 @@ public class DishController {
 
     /**
      * 保存包含口味的菜品
+     *
      * @param dishDto
      * @return
      */
@@ -37,4 +39,14 @@ public class DishController {
         return R.fail("保存失败");
     }
 
+
+    @GetMapping("/page")
+    public R<Page<DishDto>> page(@RequestParam("page") Integer currentPage, Integer pageSize,
+                              String name) {
+
+        Page<DishDto> dishDtoPage = dishService.pageWithDishName(currentPage, pageSize, name);
+
+        // 组织数据并响应
+        return R.success("查询成功", dishDtoPage);
+    }
 }    

@@ -22,4 +22,7 @@ public class DishDto extends Dish {
     // 菜品口味集合
     private List<DishFlavor> flavors;
 
+    // 菜品分类名称
+    private String categoryName;
+
 }
