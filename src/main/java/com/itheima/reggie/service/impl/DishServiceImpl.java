@@ -1,5 +1,6 @@
 package com.itheima.reggie.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -143,6 +144,35 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         dishDtopage.setRecords(dishDtos);
 
         return dishDtopage;
+    }
+
+    /**
+     * 根据id查询菜品，包含口味信息
+     *
+     * @param id 查询条件
+     * @return
+     */
+    @Override
+    public DishDto getByIdWithFlavors(Long id) {
+
+        // 根据id查询口味的基本信息(Dish)
+        Dish dish = this.getById(id);
+
+        // 根据菜品id查询菜品口味
+        LambdaQueryWrapper<DishFlavor> qw = new LambdaQueryWrapper<>();
+        qw.eq(DishFlavor::getDishId, id);
+        List<DishFlavor> flavors = dishFlavorService.list(qw);
+
+        // 封装口味信息到菜品对象(DishDto)
+        DishDto dishDto = new DishDto();
+
+        // 复制基本数据
+        BeanUtils.copyProperties(dish, dishDto);
+
+        dishDto.setFlavors(flavors);
+
+        // 封装数据返回
+        return dishDto;
     }
 
 

@@ -52,7 +52,7 @@ public class DishController {
     }
 
 
-    @GetMapping("/{id}")
+   /* @GetMapping("/{id}")
     public R<Dish> getById(@PathVariable Long id) {
         log.info("根据菜品id查询菜品信息，id为：{}", id);
 
@@ -65,6 +65,29 @@ public class DishController {
             }
             return R.fail("查询失败");
 
+        }
+        return R.fail("参数有误");
+
+    }*/
+
+    /**
+     * 根据id查询菜品，包含口味信息
+     * @param id 查询条件
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<DishDto> getByIdWithFlavors(@PathVariable Long id) {
+        log.info("根据菜品id查询菜品信息，id为：{}", id);
+
+        // id非空判断
+
+        if (id != null) {
+            DishDto dishDto = dishService.getByIdWithFlavors(id);
+            if (dishDto != null) {
+                return R.success("查询成功", dishDto);
+            }
+
+            return R.fail("查询失败");
         }
         return R.fail("参数有误");
 

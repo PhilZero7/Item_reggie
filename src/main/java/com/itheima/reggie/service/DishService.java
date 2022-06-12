@@ -12,4 +12,7 @@ public interface DishService extends IService<Dish> {
     boolean saveWithFlavors(DishDto dishDto) throws SQLIntegrityConstraintViolationException;
 
     Page<DishDto> pageWithDishName(Integer currentPage, Integer pageSize, String name);
+
+    // 根据id查询菜品，包含口味信息
+    DishDto getByIdWithFlavors(Long id);
 }
