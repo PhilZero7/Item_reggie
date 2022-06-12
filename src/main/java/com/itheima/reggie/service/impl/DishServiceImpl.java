@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@Transactional
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
 
     @Autowired
@@ -175,5 +174,37 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         return dishDto;
     }
 
+    /**
+     * 修改菜品，包含菜品口味
+     * @param dishDto 包含口味的菜品
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateByIdWithFlavors(DishDto dishDto) {
 
+        // 修改菜品基本信息
+        boolean updateRsult = this.updateById(dishDto);
+
+        if (!updateRsult) {
+            return updateRsult;
+        }
+
+        // 删除对应菜品的口味信息，条件是菜品id，而非口味id
+        LambdaQueryWrapper<DishFlavor> qw = new LambdaQueryWrapper<>();
+        Long dishId = dishDto.getId();
+        qw.eq(DishFlavor::getDishId, dishId);
+        boolean deleteResult = dishFlavorService.remove(qw);
+        // 删除失败？也没事，不用额外处理！接下来直接添加即可。
+
+        // 把dishId设置进DishFlavor对象
+        List<DishFlavor> flavors = dishDto.getFlavors();
+        for (DishFlavor flavor : flavors) {
+            flavor.setDishId(dishId);
+        }
+
+        // 添加口味信息
+        boolean saveBatchResult = dishFlavorService.saveBatch(flavors);
+        return saveBatchResult;
+    }
 }

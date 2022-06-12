@@ -72,6 +72,7 @@ public class DishController {
 
     /**
      * 根据id查询菜品，包含口味信息
+     *
      * @param id 查询条件
      * @return
      */
@@ -91,5 +92,31 @@ public class DishController {
         }
         return R.fail("参数有误");
 
+    }
+
+
+    /**
+     * 修改菜品，包含菜品口味
+     * @param dishDto 包含口味的菜品
+     * @return
+     */
+    @PutMapping
+    public R update(@RequestBody DishDto dishDto) {
+        log.info("修改菜品，数据：{}", dishDto);
+
+        // id非空校验
+        Long dishId = dishDto.getId();
+
+        if (dishId != null) {
+
+            boolean updateResult = dishService.updateByIdWithFlavors(dishDto);
+            if (updateResult) {
+                return R.success("修改成功");
+            }
+            return R.fail("修改失败");
+        }
+
+
+        return R.fail("参数有误");
     }
 }
