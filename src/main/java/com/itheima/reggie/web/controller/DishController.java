@@ -1,6 +1,7 @@
 package com.itheima.reggie.web.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.service.DishService;
 import com.itheima.reggie.web.R;
@@ -42,11 +43,30 @@ public class DishController {
 
     @GetMapping("/page")
     public R<Page<DishDto>> page(@RequestParam("page") Integer currentPage, Integer pageSize,
-                              String name) {
+                                 String name) {
 
         Page<DishDto> dishDtoPage = dishService.pageWithDishName(currentPage, pageSize, name);
 
         // 组织数据并响应
         return R.success("查询成功", dishDtoPage);
     }
-}    
+
+
+    @GetMapping("/{id}")
+    public R<Dish> getById(@PathVariable Long id) {
+        log.info("根据菜品id查询菜品信息，id为：{}", id);
+
+        // id非空判断
+
+        if (id != null) {
+            Dish dish = dishService.getById(id);
+            if (dish != null) {
+                return R.success("查询成功", dish);
+            }
+            return R.fail("查询失败");
+
+        }
+        return R.fail("参数有误");
+
+    }
+}
