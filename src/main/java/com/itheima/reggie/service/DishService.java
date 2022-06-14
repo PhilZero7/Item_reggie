@@ -25,6 +25,6 @@ public interface DishService extends IService<Dish> {
     // 启售/禁售
     boolean switchStatus(Integer status, Long[] ids);
 
-    // 查询该分类下所有菜品
-    List<Dish> listByCategoryId(Long categoryId);
+    // 根据条件查询菜品
+    List<Dish> listByCondition(Long categoryId, String name);
 }

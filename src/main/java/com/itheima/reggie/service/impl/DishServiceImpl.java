@@ -232,21 +232,25 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     }
 
     /**
-     * 根据菜品分类ID，查询菜品列表
+     * 根据条件查询菜品
      *
-     * @param categoryId 菜品分类ID
+     * @param categoryId 菜品分类id
      * @return
      */
     @Override
-    public List<Dish> listByCategoryId(Long categoryId) {
-        // 1. 参数安全性校验
+    public List<Dish> listByCondition(Long categoryId, String name) {
+
+
+        /*// 1. 参数安全性校验
         if (categoryId == null) {
             throw new BusinessException("参数有误");
-        }
+        }*/
 
         // 2. 构建查询条件
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Dish::getCategoryId, categoryId);
+        // TODO 菜品条件查询2：获取更多查询条件，非空判断后添加到qw中
+        queryWrapper.eq(categoryId != null, Dish::getCategoryId,categoryId)
+        .like(StringUtils.isNotBlank(name),Dish::getName , name);
 
         // 添加隐含条件
         queryWrapper.eq(Dish::getStatus, 1)

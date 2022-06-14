@@ -1,7 +1,5 @@
 package com.itheima.reggie.web.controller;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.dto.DishDto;
@@ -150,14 +148,15 @@ public class DishController {
 
 
     /**
-     * 根据菜品分类ID，查询菜品
+     * 根据条件查询菜品
      * @param categoryId  菜品分类ID
      * @return
      */
     @GetMapping("/list")
-    public R<List<Dish>> listByCategoryId(Long categoryId) {
-        log.info("根据某个分类下的所有菜品，分类ID{}", categoryId);
-        List<Dish> dishes = dishService.listByCategoryId(categoryId);
+    public R<List<Dish>> listByCondition(Long categoryId,String name) {
+        // TODO 菜品条件查询1：handler形参设置为dish类型，兼容更多查询条件
+        log.info("根据某个分类下的所有菜品，分类ID{}，查询关键字{}", categoryId,name);
+        List<Dish> dishes = dishService.listByCondition(categoryId,name);
 
         return R.success("查询菜品成功", dishes);
     }
