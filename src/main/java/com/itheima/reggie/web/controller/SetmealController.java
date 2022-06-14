@@ -6,10 +6,7 @@ import com.itheima.reggie.service.SetmealService;
 import com.itheima.reggie.web.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author Vsunks.v
@@ -29,9 +26,10 @@ public class SetmealController {
 
     /**
      * 分页条件查询套餐，携带套餐分类名称
-     * @param currentPage   页码
-     * @param pageSize      页面大小
-     * @param name          查询条件
+     *
+     * @param currentPage 页码
+     * @param pageSize    页面大小
+     * @param name        查询条件
      * @return
      */
     @GetMapping("/page")
@@ -52,5 +50,23 @@ public class SetmealController {
 
         return R.success("查询成功", page);
 
+    }
+
+    /**
+     * 新增套餐
+     * @param setmealDto 套餐信息，包含了基本信息和套餐中菜品信息
+     * @return
+     */
+    @PostMapping
+    public R save(@RequestBody SetmealDto setmealDto) {
+
+        log.info("保存套餐{}", setmealDto);
+
+
+        boolean result = setmealService.saveWithDish(setmealDto);
+        if (result) {
+            return R.success("保存成功");
+        }
+        return R.fail("保存失败");
     }
 }

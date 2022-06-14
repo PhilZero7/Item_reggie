@@ -1,20 +1,25 @@
 package com.itheima.reggie.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.itheima.reggie.entity.Category;
 import com.itheima.reggie.entity.Setmeal;
+import com.itheima.reggie.entity.SetmealDish;
 import com.itheima.reggie.entity.dto.DishDto;
 import com.itheima.reggie.entity.dto.SetmealDto;
 import com.itheima.reggie.mapper.SetmealMapper;
 import com.itheima.reggie.service.CategoryService;
+import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
+import com.itheima.reggie.web.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +30,10 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
     @Autowired
     CategoryService categoryService;
+
+
+    @Autowired
+    SetmealDishService setmealDishService;
 
     /**
      * 分页条件查询套餐，携带套餐分类名称
@@ -86,4 +95,46 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
         dtoPage.setRecords(dtos);
         return dtoPage;
     }
+
+    /**
+     * 新增套餐
+     *
+     * @param setmealDto 套餐信息，包含了基本信息和套餐中菜品信息
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveWithDish(SetmealDto setmealDto) {
+
+        // 1. 判断套餐名称是否存在，如果存在提示重名
+        String name = setmealDto.getName();
+
+        LambdaQueryWrapper<Setmeal> qw = new LambdaQueryWrapper<>();
+        qw.eq(StringUtils.isNotBlank(name), Setmeal::getName, name);
+
+        Setmeal setmeal = this.getOne(qw);
+        if (setmeal != null) {
+            throw new BusinessException("套餐" + name + "已存在");
+        }
+
+        // 2. 保存套餐基本信息，返回套餐的id（MP自动完成的）
+        boolean saveResult = this.save(setmealDto);
+        if (!saveResult) {
+            return false;
+        }
+
+        // 3. 保存套餐详情
+
+        // 3.1 遍历获取套餐中每个菜品对象
+        List<SetmealDish> setmealDishes = setmealDto.getSetmealDishes();
+        for (SetmealDish setmealDish : setmealDishes) {
+            // 3.2 设置套餐id
+            setmealDish.setSetmealId(setmealDto.getId());
+        }
+
+        // 3.3 保存套餐详情
+        return setmealDishService.saveBatch(setmealDishes);
+    }
+
+
 }
