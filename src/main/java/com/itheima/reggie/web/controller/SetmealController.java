@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+
 /**
  * @Author Vsunks.v
  * @Date 2022/6/12 17:16
@@ -54,6 +56,7 @@ public class SetmealController {
 
     /**
      * 新增套餐
+     *
      * @param setmealDto 套餐信息，包含了基本信息和套餐中菜品信息
      * @return
      */
@@ -69,4 +72,27 @@ public class SetmealController {
         }
         return R.fail("保存失败");
     }
+
+
+/**
+ * 批量逻辑删除
+ * @param ids id们
+ * @return
+ */
+@DeleteMapping
+public R deleteByIds(Long[] ids) {
+    log.info("删除套餐：{}", Arrays.toString(ids));
+
+    if (ids.length > 0) {
+        boolean result = setmealService.logicalRemoveByIds(ids);
+        if (result) {
+            return R.success("删除成功");
+        }
+        return R.fail("删除失败");
+    }
+
+    return R.fail("参数有误");
+}
+
+
 }

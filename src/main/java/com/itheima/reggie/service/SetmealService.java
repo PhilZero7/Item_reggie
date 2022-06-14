@@ -11,4 +11,7 @@ public interface SetmealService extends IService<Setmeal> {
 
     // 新增套餐，包含了基本信息和套餐中菜品信息
     boolean saveWithDish(SetmealDto setmealDto);
+
+    // 逻辑删除：根据id批量删除套餐
+    boolean logicalRemoveByIds(Long[] ids);
 }

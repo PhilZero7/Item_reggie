@@ -14,12 +14,20 @@ mybatis-plus:
   configuration:
     # 驼峰命名和底杠命名自动转换
     map-underscore-to-camel-case: true
+
     # Mybatis默认简单日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       # MybatisPlus 设置全局主键生成策略：雪花算法
       id-type: ASSIGN_ID
+      # 全局配置逻辑删除参数，不需要每个实体类的字段中单独配置
+#      logic-delete-field:
+#      logic-delete-value:
+#      logic-not-delete-value:
+
+
+
 
 # 定义不登录就可以放行的请求，使用Spring提供的AntPathMatcher，支持统配
 urlStr: /backend/**,/front/**,/employee/login,favicon.ico
