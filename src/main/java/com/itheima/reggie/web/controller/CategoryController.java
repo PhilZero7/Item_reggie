@@ -8,6 +8,7 @@ import com.itheima.reggie.entity.Category;
 import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.web.R;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
@@ -171,13 +172,51 @@ public class CategoryController {
 
 
     /**
-     * 按照【类型/名称】条件查询所有的分类数据。
+     * 按照条件查询所有的分类数据。
      * 排序主要条件：sort升序
      * 排序次要条件：updateTime 降序
-     * @param type 查询
+     *
+     * @param category 查询条件，SpringMVC帮我们创建的对象，不可能为null。其属性值可能为null
      * @return
      */
     @GetMapping("list")
+    public R<List<Category>> listByCondition(Category category) {
+        log.info("查询分类，查询条件：{}", category);
+
+
+        // 1. 条件构造器，设置分类类型
+        LambdaQueryWrapper<Category> qw = new LambdaQueryWrapper<>();
+
+        // 2. 条件构造器，设置主次排序条件
+        Integer type = category.getType();
+        String name = category.getName();
+        // 如果存在类型，就按照类型查
+        qw.eq(type != null, Category::getType, type)
+                // 如果存在名称，就按照名称查
+                .like(StringUtils.isNotBlank(name), Category::getName, name)
+                // 隐含的排序条件
+                .orderByAsc(Category::getSort)
+                .orderByDesc(Category::getUpdateTime);
+
+        // 3. 调用`service`方法查询
+        List<Category> categories = categoryService.list(qw);
+
+        if (categories != null && categories.size() > 0) {
+            // 4. 组装结果数据，响应
+            return R.success("查询分类成功", categories);
+        }
+        return R.fail("没有这种分类");
+    }
+
+    /**
+     * 按照【分类类型】条件查询所有的分类数据。
+     * 排序主要条件：sort升序
+     * 排序次要条件：updateTime 降序
+     *
+     * @param type 查询
+     * @return
+     */
+    //@GetMapping("list")
     public R<List<Category>> listByType(Long type) {
         log.info("查询分类，分类类型id：{}", type);
 
@@ -188,8 +227,8 @@ public class CategoryController {
 
             // 2. 条件构造器，设置主次排序条件
             qw.eq(Category::getType, type)
-            .orderByAsc(Category::getSort)
-            .orderByDesc(Category::getUpdateTime);
+                    .orderByAsc(Category::getSort)
+                    .orderByDesc(Category::getUpdateTime);
 
             // 3. 调用`service`方法查询
             List<Category> categories = categoryService.list(qw);
