@@ -6,7 +6,7 @@ package com.itheima.reggie.demo;
  * @Blog blog.sunxiaowei.net/996.mba
  * @Description:
  */
-public class Demo {
+public class ThreadLocalDemo {
 
     /**
      * 两个要求：
@@ -64,7 +64,7 @@ class Demo2 {
         // 获取tl对象
 
         // tl.get()
-        String str = Demo.tl.get();
+        String str = ThreadLocalDemo.tl.get();
         System.out.println("Demo2中test3中的str= " + str);
 
     }

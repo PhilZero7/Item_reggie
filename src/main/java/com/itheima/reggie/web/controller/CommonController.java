@@ -13,9 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.UUID;
-
-import static com.itheima.reggie.demo.Demo.test1;
 
 /**
  * @Author Vsunks.v

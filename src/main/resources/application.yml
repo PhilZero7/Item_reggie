@@ -30,7 +30,7 @@ mybatis-plus:
 
 
 # 定义不登录就可以放行的请求，使用Spring提供的AntPathMatcher，支持统配
-urlStr: /backend/**,/front/**,/employee/login,favicon.ico
+urlStr: /backend/**,/front/**,/employee/login,favicon.ico,/user/sendMsg,/user/login
 management:
   endpoints:
     web:
