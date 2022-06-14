@@ -12,6 +12,7 @@ import com.itheima.reggie.mapper.DishMapper;
 import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.service.DishFlavorService;
 import com.itheima.reggie.service.DishService;
+import com.itheima.reggie.web.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.annotations.Param;
@@ -228,5 +229,31 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
         boolean result = dishMapper.updateStatusByIds(status, ids);
 
         return result;
+    }
+
+    /**
+     * 根据菜品分类ID，查询菜品列表
+     *
+     * @param categoryId 菜品分类ID
+     * @return
+     */
+    @Override
+    public List<Dish> listByCategoryId(Long categoryId) {
+        // 1. 参数安全性校验
+        if (categoryId == null) {
+            throw new BusinessException("参数有误");
+        }
+
+        // 2. 构建查询条件
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Dish::getCategoryId, categoryId);
+
+        // 添加隐含条件
+        queryWrapper.eq(Dish::getStatus, 1)
+                .orderByAsc(Dish::getSort).orderByDesc(Dish::getUpdateTime);
+
+        // 3. 查询并返回
+        return dishMapper.selectList(queryWrapper);
+
     }
 }

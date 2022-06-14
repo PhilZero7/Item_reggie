@@ -7,6 +7,7 @@ import com.itheima.reggie.entity.dto.DishDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.List;
 
 @Transactional
 public interface DishService extends IService<Dish> {
@@ -23,4 +24,7 @@ public interface DishService extends IService<Dish> {
 
     // 启售/禁售
     boolean switchStatus(Integer status, Long[] ids);
+
+    // 查询该分类下所有菜品
+    List<Dish> listByCategoryId(Long categoryId);
 }

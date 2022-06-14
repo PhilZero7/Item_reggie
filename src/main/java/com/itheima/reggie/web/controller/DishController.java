@@ -1,5 +1,7 @@
 package com.itheima.reggie.web.controller;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.reggie.entity.Dish;
 import com.itheima.reggie.entity.dto.DishDto;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * 菜品管理
@@ -125,6 +128,7 @@ public class DishController {
 
     /**
      * 启售/禁售
+     *
      * @param status
      * @param ids
      * @return
@@ -142,5 +146,19 @@ public class DishController {
             return R.fail("修改状态失败");
         }
         return R.fail("参数有误");
+    }
+
+
+    /**
+     * 根据菜品分类ID，查询菜品
+     * @param categoryId  菜品分类ID
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Dish>> listByCategoryId(Long categoryId) {
+        log.info("根据某个分类下的所有菜品，分类ID{}", categoryId);
+        List<Dish> dishes = dishService.listByCategoryId(categoryId);
+
+        return R.success("查询菜品成功", dishes);
     }
 }
