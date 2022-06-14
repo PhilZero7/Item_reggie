@@ -1,5 +1,7 @@
 package com.itheima.reggie.web.controller;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.itheima.reggie.entity.User;
 import com.itheima.reggie.service.UserService;
 import com.itheima.reggie.utils.SMSUtils;
@@ -47,7 +49,7 @@ public class UserController {
             // 保存验证码到session
             session.setAttribute("code", code);
 
-            return R.success("验证码发送成功",null);
+            return R.success("验证码发送成功", null);
 
         }
 
@@ -55,5 +57,51 @@ public class UserController {
         return R.fail("手机号有误");
     }
 
+
+    /**
+     * 登录
+     * @param map 包含登录用的手机号和验证码
+     * @return
+     */
+    @PostMapping("/login")
+    public R login(@RequestBody Map<String, String> map) {
+        log.info("前台用户登录，参数为：{}", map);
+
+        String code = map.get("code");
+        String phone = map.get("phone");
+
+        if (phone != null && phone.length() == 11 && code != null) {
+
+
+            // 判断验证码是否正确
+            // 从session获取保存的验证码
+            Object codeInSession = session.getAttribute("code");
+
+            // 判断验证码是否相同
+            if (code.equals(codeInSession.toString())) {
+                // 查询手机号是否已注册
+                LambdaQueryWrapper<User> wq = new LambdaQueryWrapper<>();
+                wq.eq(User::getPhone, phone);
+                User user = userService.getOne(wq);
+
+                // 如果没有注册，完成注册
+                if (user == null) {
+                    user = new User();
+                    user.setPhone(phone);
+                    //user.setStatus(1);  // msyql默认填充1
+                    userService.save(user);
+                }
+
+                // 保存用户登录状态
+                session.setAttribute("user", user.getId());
+
+                // 组织数据并返回
+                return R.success("登录成功", user);
+            }else{
+                return R.fail("验证码错误");
+            }
+        }
+        return R.fail("参数有误");
+    }
 
 }

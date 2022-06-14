@@ -72,6 +72,7 @@ public class LoginCheckFilter implements Filter {
 
 
         //4. 判断登录状态，如果已登录，则直接放行
+        // 4.1 后台校验
         HttpSession session = req.getSession();
         Long employeeId = (Long) session.getAttribute("employee");
 
@@ -87,6 +88,19 @@ public class LoginCheckFilter implements Filter {
             // 因为所有请求都会过Filter，在这里设置好之后，
             // 之后在dao/service/Controller等位置所有同一个线程中都可以获取并使用
             BaseContextUtil.setCurrentId(employeeId);
+
+            // 放行
+            filterChain.doFilter(request, response);
+            return; // 后面代码不需要执行，直接结束
+        }
+
+
+        // 4.3 前台校验
+        Long userId = (Long) session.getAttribute("user");
+
+        if (userId != null) {
+
+            BaseContextUtil.setCurrentId(userId);
 
             // 放行
             filterChain.doFilter(request, response);
